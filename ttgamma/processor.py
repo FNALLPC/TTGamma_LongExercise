@@ -401,7 +401,7 @@ class TTGammaProcessor(processor.ProcessorABC):
             elif shift_syst == "JESUp":
                 jets = corrected_jets.JES_jes.up  # FIXME 4
             elif shift_syst == "JESDown":
-                jets = corrected_jets.JES_jes.down  # FIXME 4
+                jets = corrected_jets.JER.down  # FIXME 4
             else:
                 # either nominal or some shift systematic unrelated to jets
                 jets = corrected_jets
@@ -648,7 +648,7 @@ class TTGammaProcessor(processor.ProcessorABC):
             eleSF = ak.prod((eleID * eleRECO), axis=-1)
             eleSF_up = ak.prod(((eleID + eleIDerr) * (eleRECO + eleRECOerr)), axis=-1)
             eleSF_down = ak.prod(((eleID - eleIDerr) * (eleRECO - eleRECOerr)), axis=-1)  # FIXME 4  
-            weights.add('eleEffWeight',weight=eleSF,weightUp=eleSFUp,weightDown=eleSFDown) # FIXME 4
+            weights.add('eleEffWeight',weight=eleSF,weightUp=eleSF_up,weightDown=eleSF_down) # FIXME 4
 
             muID = mu_id_sf(tightMuons.eta, tightMuons.pt)
             muIDerr = mu_id_err(tightMuons.eta, tightMuons.pt)
@@ -662,7 +662,7 @@ class TTGammaProcessor(processor.ProcessorABC):
                 (muID + muIDerr) * (muIso + muIsoerr) * (muTrig + muTrigerr), axis=-1
             )
             muSF_down = ak.prod(
-                (muID - muIDerr)*(muIso - muIsoerr)*(muTrig - muTrigger), axis=-1
+                (muID - muIDerr)*(muIso - muIsoerr)*(muTrig - muTrigerr), axis=-1
             )  # FIXME 4
             weights.add("muEffWeight", weight=muSF, weightUp=muSF_up, weightDown=muSF_down)  # FIXME 4
 
