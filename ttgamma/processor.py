@@ -5,7 +5,6 @@ import hist
 from coffea.analysis_tools import PackedSelection, Weights
 from coffea.nanoevents import NanoAODSchema, NanoEventsFactory
 from coffea.nanoevents.methods import nanoaod
-from coffea.nanoevents.methods import candidate
 
 NanoAODSchema.warn_missing_crossrefs = False
 
@@ -528,8 +527,8 @@ class TTGammaProcessor(processor.ProcessorABC):
         tightPhotons = ak.with_field(tightPhotons, 0.0, "mass") # coffea needs this mass field to add photons as four vectors
 
         leadingMuon = ak.firsts(tightMuons)
-        leadingElectron = ak.firsts(tightElectrons, behavior=candidate.behavior)
-        leadingPhoton = ak.firsts(tightPhotons, behavior=candidate.behavior)
+        leadingElectron = ak.firsts(tightElectrons)
+        leadingPhoton = ak.firsts(tightPhotons)
         leadingPhotonLoose = ak.firsts(loosePhotons)
 
         # define egammaMass, mass of leadingElectron and leadingPhoton system
