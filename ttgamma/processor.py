@@ -387,8 +387,7 @@ class TTGammaProcessor(processor.ProcessorABC):
                 events.fixedGridRhoFastjetAll, events.Jet.pt
             )[0]
 
-            events_cache = events.caches[0]
-            corrected_jets = jet_factory.build(events.Jet, lazy_cache=events_cache)
+            corrected_jets = jet_factory.build(events.Jet)
 
             # If processing a jet systematic, we need to update the
             # jets to reflect the jet systematic uncertainty variations
@@ -525,11 +524,13 @@ class TTGammaProcessor(processor.ProcessorABC):
         # this is because all of our signal and control regions require exactly zero or one of them
         # so there is no ambiguity to resolve
         # (highest pt, muon is muon and antimuon. objects are sorted by pt, first is always highest)
+        tightPhotons = ak.with_field(tightPhotons, 0.0, "mass") # coffea needs this mass field to add photons as four vectors
+
         leadingMuon = ak.firsts(tightMuons)
         leadingElectron = ak.firsts(tightElectrons)
         leadingPhoton = ak.firsts(tightPhotons)
         leadingPhotonLoose = ak.firsts(loosePhotons)
-        
+
         # define egammaMass, mass of leadingElectron and leadingPhoton system
         egammaMass  = (leadingElectron + leadingPhoton).mass
         # define mugammaMass analogously
