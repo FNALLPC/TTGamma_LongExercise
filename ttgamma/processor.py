@@ -383,7 +383,7 @@ class TTGammaProcessor(processor.ProcessorABC):
             events["Jet", "pt_gen"] = ak.values_astype(
                 ak.fill_none(events.Jet.matched_gen.pt, 0), np.float32
             )
-            events["Jet", "rho"] = ak.broadcast_arrays(
+            events["Jet", "rho_value"] = ak.broadcast_arrays(
                 events.fixedGridRhoFastjetAll, events.Jet.pt
             )[0]
 
