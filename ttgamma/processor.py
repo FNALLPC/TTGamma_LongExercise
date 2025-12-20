@@ -94,8 +94,11 @@ def selectMuons(events):
     Loose muon requirements are already coded
     """
     muonSelectTight = (
-        (events.Muon.pt > 12.3)
-    )  # FIXME 1a
+        (events.Muon.pt > 30)
+        & (abs(events.Muon.eta) < 2.4)
+        & (events.Muon.tightId)
+        & (events.Muon.pfRelIso04_all < 0.15)
+    )  # solution to FIXME 1a
 
     muonSelectLoose = (
         (events.Muon.pt > 15)
@@ -127,9 +130,13 @@ def selectElectrons(events):
     ) & (abs(events.Electron.dz) < 0.2)
 
     electronSelectTight = (
-        (events.Electron.pt > 34)
-        & (abs(events.Electron.eta) < 1.1)
-    )  # FIXME 1a
+        (events.Electron.pt > 35)
+        & (abs(events.Electron.eta) < 2.1)
+        & (events.Electron.cutBased >= 4)
+        & eleEtaGap
+        & elePassDXY
+        & elePassDZ
+    )  # solution to FIXME 1a
 
     # select loose electrons
     electronSelectLoose = (
@@ -185,10 +192,10 @@ def selectPhotons(photons):
     )
 
     # select tightPhotons, the subset of photons passing the photonSelect cut and the photonID cut
-    tightPhotons = photons[photonSelect]  # FIXME 1a
+    tightPhotons = photons[photonSelect & photonID]  # solution to FIXME 1a
     # select loosePhotons, the subset of photons passing the photonSelect cut and all photonID cuts
     # except the charged hadron isolation cut applied (photonID_NoChIso)
-    loosePhotons = photons[photonSelect & photonID]  # FIXME 1a
+    loosePhotons = photons[photonSelect & photonID_NoChIso]  # solution to FIXME 1a
 
     return tightPhotons, loosePhotons
 
@@ -211,13 +218,13 @@ def categorizeGenPhoton(photon):
 
     # define the photon categories for tight photon events
     # a genuine photon is a reconstructed photon which is matched to a generator level photon, and does not have a hadronic parent
-    isGenPho = matchedPho  # FIXME 2b
+    isGenPho = matchedPho & ~(hadronicParent)  # solution to FIXME 2b
     # a hadronic photon is a reconstructed photon which is matched to a generator level photon, but has a hadronic parent
-    isHadPho = ~matchedPho # FIXME 2b
+    isHadPho = matchedPho & hadronicParent # solution to FIXME 2b
     # a misidentified electron is a reconstructed photon which is matched to a generator level electron
-    isMisIDele = ~matchedPho # FIXME 2b matchedEle and matchedPho are exclusive
+    isMisIDele = matchedEle # solution to FIXME 2b matchedEle and matchedPho are exclusive
     # a hadronic/fake photon is a reconstructed photon that does not fall within any of the above categories
-    isHadFake = ~matchedPho # FIXME 2b
+    isHadFake = (~matchedPho) & (~matchedEle) & (~hadronicParent) # solution to FIXME 2b
 
     # integer definition for the photon category axis
     # since false = 0 , true = 1, this only leaves the integer value of the category it falls into
@@ -377,13 +384,14 @@ class TTGammaProcessor(processor.ProcessorABC):
         # update jet kinematics based on jet energy corrections
         # in data, the corrections are already applied
         jets = events.Jet
+
         if self.isMC:
             events["Jet", "pt_raw"] = (1 - events.Jet.rawFactor) * events.Jet.pt
             events["Jet", "mass_raw"] = (1 - events.Jet.rawFactor) * events.Jet.mass
             events["Jet", "pt_gen"] = ak.values_astype(
                 ak.fill_none(events.Jet.matched_gen.pt, 0), np.float32
             )
-            events["Jet", "rho"] = ak.broadcast_arrays(
+            events["Jet", "rho_value"] = ak.broadcast_arrays(
                 events.fixedGridRhoFastjetAll, events.Jet.pt
             )[0]
 
@@ -396,13 +404,14 @@ class TTGammaProcessor(processor.ProcessorABC):
             elif shift_syst == "JERDown":
                 jets = corrected_jets.JER.down
             elif shift_syst == "JESUp":
-                jets = corrected_jets  # FIXME 4
+                jets = corrected_jets.JES_jes.up  #solution to FIXME 4
             elif shift_syst == "JESDown":
-                jets = corrected_jets  # FIXME 4
+                jets = corrected_jets.JES_jes.down  # solution to FIXME 4
             else:
                 # either nominal or some shift systematic unrelated to jets
                 jets = corrected_jets
-
+            
+                
         ## More cross-cleaning: check jet does not overlap with our selected leptons or photons
         jetMuMask = ak.all(jets.metric_table(tightMuons) > 0.4, axis=-1)
         jetEleMask = ak.all(jets.metric_table(tightElectrons) > 0.4, axis=-1)
@@ -416,14 +425,16 @@ class TTGammaProcessor(processor.ProcessorABC):
 
         tightJet = jets[
             (abs(jets.eta) < 2.4)
-            & (jets.pt > 20)
+            & (jets.pt > 30)
             & (jets.jetId & mediumJetIDbit == mediumJetIDbit)
             & jetPhoMask
-        ]  # FIXME 1a
+            & jetMuMask
+            & jetEleMask
+        ]  # solution to FIXME 1a
 
         # label the subset of tightJet which pass the Deep CSV tagger
         bTagWP = 0.6321  # 2016 DeepCSV working point
-        tightJet["btagged"] = tightJet.btagDeepB > 0.456  # FIXME 1a
+        tightJet["btagged"] = tightJet.btagDeepB > bTagWP  # solution to FIXME 1a
 
         #####################
         # EVENT SELECTION
@@ -511,13 +522,13 @@ class TTGammaProcessor(processor.ProcessorABC):
         # Find all possible combinations of 3 tight jets in the events
         # Hint: using the ak.combinations(array,n) method chooses n unique items from array.
         # More hints are in the twiki
-        # triJet = ak.combinations()  # FIXME 2a
+        triJet = ak.combinations(tightJet, 3) # solution to FIXME 2a
         # Sum together jets from the triJet object and find its pt and mass
-        # triJetPt = ().pt  # FIXME 2a
-        # triJetMass = ().mass  # FIXME 2a
+        triJetPt =   (triJet['0'] + triJet['1'] + triJet['2']).pt  # solution to FIXME 2a
+        triJetMass = (triJet['0'] + triJet['1'] + triJet['2']).mass  # solution to FIXME 2a
         # define the M3 variable, the triJetMass of the combination with the highest triJetPt value
-        # (ak.argmax and ak.firsts will be helpful here)
-        M3 = np.ones(len(events)) # FIXME 2a        
+        # (ak.argmax and ak.singletons will be helpful here)
+        M3 = triJetMass[ak.singletons(ak.argmax(triJetMass, axis=1))] # solution to FIXME 2a        
         
         # For all the other event-level variables, we can form the variables from just
         # the leading (in pt) objects rather than form all combinations and arbitrate them
@@ -535,7 +546,7 @@ class TTGammaProcessor(processor.ProcessorABC):
         egammaMass  = (leadingElectron + leadingPhoton).mass
         # define mugammaMass analogously
      
-        mugammaMass = leadingMuon.mass  # FIXME 2a
+        mugammaMass = (leadingMuon + leadingPhoton).mass  # solution to FIXME 2a
         gammaMasses = {'electron': egammaMass, 'muon': mugammaMass }
 
         ###################
