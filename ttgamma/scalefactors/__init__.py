@@ -46,13 +46,15 @@ jec_stack = JECStack(jec_inputs)
 name_map = jec_stack.blank_name_map
 name_map["JetPt"] = "pt"
 name_map["JetMass"] = "mass"
+name_map["JetPhi"] = "phi"
 name_map["JetEta"] = "eta"
 name_map["JetA"] = "area"
+name_map["JetRawFactor"] = "rawFactor"
 
 name_map["ptGenJet"] = "pt_gen"
 name_map["ptRaw"] = "pt_raw"
 name_map["massRaw"] = "mass_raw"
-name_map["Rho"] = "rho"
+name_map["Rho"] = "rho_value"
 
 jet_factory = CorrectedJetsFactory(name_map, jec_stack)
 
