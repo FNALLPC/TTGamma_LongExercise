@@ -779,10 +779,10 @@ class TTGammaProcessor(processor.ProcessorABC):
             if shift_syst is None:
                 systList = [
                     "nominal",
-                     "muEffWeightUp",
-                     "muEffWeightDown",
-                     "eleEffWeightUp",
-                     "eleEffWeightDown",  # solution to FIXME 4
+                    "muEffWeightUp",
+                    "muEffWeightDown",
+                    "eleEffWeightUp",
+                    "eleEffWeightDown",  # solution to FIXME 4
                     "ISRUp",
                     "ISRDown",
                     "FSRUp",
