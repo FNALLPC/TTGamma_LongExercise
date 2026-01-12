@@ -401,8 +401,7 @@ class TTGammaProcessor(processor.ProcessorABC):
                 events.fixedGridRhoFastjetAll, events.Jet.pt
             )[0]
 
-            events_cache = events.caches[0]
-            corrected_jets = jet_factory.build(events.Jet, lazy_cache=events_cache)
+            corrected_jets = jet_factory.build(events.Jet)
 
             # If processing a jet systematic, we need to update the
             # jets to reflect the jet systematic uncertainty variations
