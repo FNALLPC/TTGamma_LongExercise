@@ -881,8 +881,14 @@ class TTGammaProcessor(processor.ProcessorABC):
                             'muon': selection.all("muSel", "jetSel_3j0b", "onePho")
                            }
 
-#            for lepton in phosel_3j0t.keys():
-                # output["photon_lepton_mass_3j0t"].fill()  # FIXME 3
+            for lepton in phosel_3j0t.keys():
+                output["photon_lepton_mass_3j0t"].fill(
+                    mass = egammaMass[jetSel_3j0b],
+                    category = phoCategory[jetSel_3j0b],
+                    lepFlavor = lepton,
+                    systematic = syst,
+                    weight = evtWeight[jetSel_3j0b],
+            ) solution to FIXME 3
 
         if shift_syst is None:
             output["EventCount"] = len(events)
