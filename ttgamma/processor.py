@@ -881,13 +881,15 @@ class TTGammaProcessor(processor.ProcessorABC):
                            }
 
             for lepton in phosel_3j0t.keys():
+                mask = phosel_3j0t[lepton]
                 output["photon_lepton_mass_3j0t"].fill(
-                    mass = egammaMass[jetSel_3j0b],
-                    category = phoCategory[jetSel_3j0b],
-                    lepFlavor = lepton,
-                    systematic = syst,
-                    weight = evtWeight[jetSel_3j0b],
-            ) # solution to FIXME 3
+                    mass=leadingPhoton.pt[mask],
+                    category=phoCategory[mask],
+                    lepFlavor=lepton,
+                    systematic=syst,
+                    weight=evtWeight[mask],
+                ) # solution to FIXME 3
+
 
         if shift_syst is None:
             output["EventCount"] = len(events)
