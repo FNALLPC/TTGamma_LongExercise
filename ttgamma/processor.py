@@ -887,7 +887,7 @@ class TTGammaProcessor(processor.ProcessorABC):
                     lepFlavor = lepton,
                     systematic = syst,
                     weight = evtWeight[jetSel_3j0b],
-            ) solution to FIXME 3
+            ) # solution to FIXME 3
 
         if shift_syst is None:
             output["EventCount"] = len(events)
