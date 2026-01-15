@@ -447,7 +447,7 @@ class TTGammaProcessor(processor.ProcessorABC):
         selection.add("oneMuon", ak.num(tightMuons) == 1)
         # zeroMuon should be true if there are no tight muons in the event
         selection.add()   # FIXME 1b
-        # we also need to know if there are any loose muons in each event
+        # we also need to ensure there are no loose muons in the event
         selection.add()  # FIXME 1b
 
         # similar selections will be needed for electrons
