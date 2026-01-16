@@ -848,7 +848,7 @@ class TTGammaProcessor(processor.ProcessorABC):
 
                 # fill eta histogram, for events passing the phosel selection
                 output["photon_eta"].fill(
-                    eta=leadingPhoton.pt[phosel],
+                    eta=leadingPhoton.eta[phosel],
                     category=phoCategory[phosel],
                     lepFlavor=lepton,
                     systematic=syst,
@@ -883,7 +883,7 @@ class TTGammaProcessor(processor.ProcessorABC):
             for lepton in phosel_3j0t.keys():
                 mask = phosel_3j0t[lepton]
                 output["photon_lepton_mass_3j0t"].fill(
-                    mass=leadingPhoton.pt[mask],
+                    mass=gammaMasses[lepton][mask],
                     category=phoCategory[mask],
                     lepFlavor=lepton,
                     systematic=syst,
