@@ -541,7 +541,7 @@ class TTGammaProcessor(processor.ProcessorABC):
         triJetMass = (triJet['0'] + triJet['1'] + triJet['2']).mass  # solution to FIXME 2a
         # define the M3 variable, the triJetMass of the combination with the highest triJetPt value
         # (ak.argmax and ak.singletons will be helpful here)
-        M3 = triJetMass[ak.singletons(ak.argmax(triJetMass, axis=1))] # solution to FIXME 2a        
+        M3 = triJetMass[ak.singletons(ak.argmax(triJetPt, axis=1))] # solution to FIXME 2a        
         
         # For all the other event-level variables, we can form the variables from just
         # the leading (in pt) objects rather than form all combinations and arbitrate them
